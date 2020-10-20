@@ -10,6 +10,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * Created by kru13 on 12.10.16.
  */
@@ -26,7 +29,10 @@ public class SokoView extends View{
     int heroX = 6;
     int heroY = 4;
 
-    private float xT1, xT2, yT1, yT2;
+    Queue<Integer> markPositions = new LinkedList<>();
+
+    private float xT1;
+    private float yT1;
     static final int MIN_DISTANCE = 150;
 
     private int level[] = {
@@ -85,8 +91,8 @@ public class SokoView extends View{
                 break;
             case MotionEvent.ACTION_UP:
                 //Toast.makeText(getContext(), "Up", Toast.LENGTH_SHORT).show();
-                xT2 = event.getX();
-                yT2 = event.getY();
+                float xT2 = event.getX();
+                float yT2 = event.getY();
 
                 float deltaX = xT2 - xT1;
                 float deltaY = yT2 - yT1;
@@ -119,23 +125,42 @@ public class SokoView extends View{
     }
 
     private void move(int pos1, int pos2, boolean horizontal) {
-        if(level[heroY * 10 + heroX + pos1] == 1)
+        if(level[heroY * 10 + heroX + pos1] == 1 ||
+            level[heroY * 10 + heroX + pos1] == 2 && level[heroY * 10 + heroX + pos2] == 2 ||
+            level[heroY * 10 + heroX + pos1] == 5 && level[heroY * 10 + heroX + pos2] == 5 ||
+            level[heroY * 10 + heroX + pos1] == 2 && level[heroY * 10 + heroX + pos2] == 5 ||
+            level[heroY * 10 + heroX + pos1] == 5 && level[heroY * 10 + heroX + pos2] == 2 ||
+            level[heroY * 10 + heroX + pos1] == 2 && level[heroY * 10 + heroX + pos2] == 1)
             return;
 
-        if(level[heroY * 10 + heroX + pos1] == 2 && level[heroY * 10 + heroX + pos2] == 2)
-            return;
-
-        if(level[heroY * 10 + heroX + pos1] == 2 && level[heroY * 10 + heroX + pos2] == 1)
-            return;
-
-        if(level[heroY * 10 + heroX + pos1] == 2) {
-            level[heroY * 10 + heroX] = 0;
-            level[heroY * 10 + heroX + pos1] = 4;
-            level[heroY * 10 + heroX + pos2] = 2;
+        //posouvani beden
+        if(level[heroY * 10 + heroX + pos1] == 2 || level[heroY * 10 + heroX + pos1] == 5) {
+            //kontrola krizku na zemi
+            if(level[heroY * 10 + heroX + pos2] == 3) {
+                level[heroY * 10 + heroX + pos2] = 5;
+            }
+            else {
+                level[heroY * 10 + heroX + pos2] = 2;
+            }
+            //pokud byla posunuta zelena bedna, zapamatovat si kam vratit krizek
+            if(level[heroY * 10 + heroX + pos1] == 5) {
+                markPositions.add(heroY * 10 + heroX + pos1);
+            }
         }
-        else {
-            level[heroY * 10 + heroX] = 0;
-            level[heroY * 10 + heroX + pos1] = 4;
+        //kdyz slapne hrac na krizek
+        else if(level[heroY * 10 + heroX + pos1] == 3) {
+            markPositions.add(heroY * 10 + heroX + pos1);
+        }
+
+        //posunout hrace
+        level[heroY * 10 + heroX] = 0;
+        level[heroY * 10 + heroX + pos1] = 4;
+
+        //vratit krizek
+        if(!markPositions.isEmpty()) {
+            if(markPositions.element() == heroY * 10 + heroX) {
+                level[markPositions.remove()] = 3;
+            }
         }
 
         if(horizontal)
