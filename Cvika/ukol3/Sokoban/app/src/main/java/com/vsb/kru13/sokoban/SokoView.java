@@ -26,6 +26,9 @@ public class SokoView extends View{
     int heroX = 6;
     int heroY = 4;
 
+    private float xT1, xT2, yT1, yT2;
+    static final int MIN_DISTANCE = 150;
+
     private int level[] = {
             1,1,1,1,1,1,1,1,1,0,
             1,0,0,0,0,0,0,0,1,0,
@@ -63,7 +66,6 @@ public class SokoView extends View{
         bmp[3] = BitmapFactory.decodeResource(getResources(), R.drawable.goal);
         bmp[4] = BitmapFactory.decodeResource(getResources(), R.drawable.hero);
         bmp[5] = BitmapFactory.decodeResource(getResources(), R.drawable.boxok);
-
     }
 
     @Override
@@ -76,27 +78,44 @@ public class SokoView extends View{
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN: {
-                float xT = event.getX();
-                float yT = event.getY();
-                if(xT > 800) {
+            case MotionEvent.ACTION_DOWN:
+                //Toast.makeText(getContext(), "Down", Toast.LENGTH_SHORT).show();
+                xT1 = event.getX();
+                yT1 = event.getY();
+                break;
+            case MotionEvent.ACTION_UP:
+                //Toast.makeText(getContext(), "Up", Toast.LENGTH_SHORT).show();
+                xT2 = event.getX();
+                yT2 = event.getY();
+
+                float deltaX = xT2 - xT1;
+                float deltaY = yT2 - yT1;
+
+                if (Math.abs(deltaX) > MIN_DISTANCE && xT1 < xT2)
+                {
+                    //Toast.makeText(getContext(), "right swipe", Toast.LENGTH_SHORT).show();
                     move(1, 2, true);
                 }
-                if(xT < 400) {
+                else if (Math.abs(deltaX) > MIN_DISTANCE && xT1 > xT2)
+                {
+                    //Toast.makeText(getContext(), "left swipe", Toast.LENGTH_SHORT).show();
                     move(-1, -2, true);
                 }
-                if(yT < 400) {
-                    move(-10, -20, false);
-                }
-                if(yT > 1300) {
+
+                if (Math.abs(deltaY) > MIN_DISTANCE && yT1 < yT2)
+                {
+                    //Toast.makeText(getContext(), "down swipe", Toast.LENGTH_SHORT).show();
                     move(10, 20, false);
                 }
-                //Toast.makeText(getContext(), "x: " + xT +"; y: " + yT, Toast.LENGTH_SHORT).show();
+                else if (Math.abs(deltaY) > MIN_DISTANCE && yT1 > yT2)
+                {
+                    //Toast.makeText(getContext(), "up swipe", Toast.LENGTH_SHORT).show();
+                    move(-10, -20, false);
+                }
                 break;
             }
-        }
 
-        return super.onTouchEvent(event);
+        return true;
     }
 
     private void move(int pos1, int pos2, boolean horizontal) {
