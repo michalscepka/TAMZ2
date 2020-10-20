@@ -22,6 +22,5 @@ public class Main2Activity extends AppCompatActivity {
         Integer month = intent.getIntExtra("monthOfYear", -1);
         Toast.makeText(this, "monthOfYear: " + month, Toast.LENGTH_SHORT).show();
         myText.setText("monthOfYear: " + month);
-
     }
 }

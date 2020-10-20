@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/layout"
     tools:context=".MainActivity">
 
 
@@ -11,7 +12,6 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_marginTop="24dp"
         android:text="Enter Your Birthday"
         android:textSize="30sp"
@@ -24,11 +24,11 @@
         android:id="@+id/myDatePicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:calendarViewShown="false"
         android:datePickerMode="spinner"
         android:theme="@android:style/Theme.WithActionBar"
@@ -43,10 +43,10 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:text="TextView"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
