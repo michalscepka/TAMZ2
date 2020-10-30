@@ -13,9 +13,6 @@ import android.widget.Toast;
 import java.util.LinkedList;
 import java.util.Queue;
 
-/**
- * Created by kru13 on 12.10.16.
- */
 public class SokoView extends View{
 
     Bitmap[] bmp;
@@ -35,7 +32,7 @@ public class SokoView extends View{
     private float yT1;
     static final int MIN_DISTANCE = 150;
 
-    private int level[] = {
+    private int[] level = {
             1,1,1,1,1,1,1,1,1,0,
             1,0,0,0,0,0,0,0,1,0,
             1,0,2,3,3,2,1,0,1,0,
@@ -61,6 +58,16 @@ public class SokoView extends View{
     public SokoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
+    }
+
+    public void setLevel(int[] newLevel, int levelHeight, int levelWidth, int spawnX, int spawnY) {
+        //System.arraycopy(newLevel, 0, level, 0, newLevel.length);
+        level = newLevel;
+        lx = levelHeight;
+        ly = levelWidth;
+        heroX = spawnX;
+        heroY = spawnY;
+        invalidate();
     }
 
     void init(Context context) {
@@ -111,12 +118,12 @@ public class SokoView extends View{
                 if (Math.abs(deltaY) > MIN_DISTANCE && yT1 < yT2)
                 {
                     //Toast.makeText(getContext(), "down swipe", Toast.LENGTH_SHORT).show();
-                    move(10, 20, false);
+                    move(ly, ly*2, false);
                 }
                 else if (Math.abs(deltaY) > MIN_DISTANCE && yT1 > yT2)
                 {
                     //Toast.makeText(getContext(), "up swipe", Toast.LENGTH_SHORT).show();
-                    move(-10, -20, false);
+                    move(-ly, -ly*2, false);
                 }
                 break;
             }
@@ -125,40 +132,40 @@ public class SokoView extends View{
     }
 
     private void move(int pos1, int pos2, boolean horizontal) {
-        if(level[heroY * 10 + heroX + pos1] == 1 ||
-            level[heroY * 10 + heroX + pos1] == 2 && level[heroY * 10 + heroX + pos2] == 2 ||
-            level[heroY * 10 + heroX + pos1] == 5 && level[heroY * 10 + heroX + pos2] == 5 ||
-            level[heroY * 10 + heroX + pos1] == 2 && level[heroY * 10 + heroX + pos2] == 5 ||
-            level[heroY * 10 + heroX + pos1] == 5 && level[heroY * 10 + heroX + pos2] == 2 ||
-            level[heroY * 10 + heroX + pos1] == 2 && level[heroY * 10 + heroX + pos2] == 1)
+        if(level[heroY * ly + heroX + pos1] == 1 ||
+            level[heroY * ly + heroX + pos1] == 2 && level[heroY * ly + heroX + pos2] == 2 ||
+            level[heroY * ly + heroX + pos1] == 5 && level[heroY * ly + heroX + pos2] == 5 ||
+            level[heroY * ly + heroX + pos1] == 2 && level[heroY * ly + heroX + pos2] == 5 ||
+            level[heroY * ly + heroX + pos1] == 5 && level[heroY * ly + heroX + pos2] == 2 ||
+            level[heroY * ly + heroX + pos1] == 2 && level[heroY * ly + heroX + pos2] == 1)
             return;
 
         //posouvani beden
-        if(level[heroY * 10 + heroX + pos1] == 2 || level[heroY * 10 + heroX + pos1] == 5) {
+        if(level[heroY * ly + heroX + pos1] == 2 || level[heroY * ly + heroX + pos1] == 5) {
             //kontrola krizku na zemi
-            if(level[heroY * 10 + heroX + pos2] == 3) {
-                level[heroY * 10 + heroX + pos2] = 5;
+            if(level[heroY * ly + heroX + pos2] == 3) {
+                level[heroY * ly + heroX + pos2] = 5;
             }
             else {
-                level[heroY * 10 + heroX + pos2] = 2;
+                level[heroY * ly + heroX + pos2] = 2;
             }
             //pokud byla posunuta zelena bedna, zapamatovat si kam vratit krizek
-            if(level[heroY * 10 + heroX + pos1] == 5) {
-                markPositions.add(heroY * 10 + heroX + pos1);
+            if(level[heroY * ly + heroX + pos1] == 5) {
+                markPositions.add(heroY * ly + heroX + pos1);
             }
         }
         //kdyz slapne hrac na krizek
-        else if(level[heroY * 10 + heroX + pos1] == 3) {
-            markPositions.add(heroY * 10 + heroX + pos1);
+        else if(level[heroY * ly + heroX + pos1] == 3) {
+            markPositions.add(heroY * ly + heroX + pos1);
         }
 
         //posunout hrace
-        level[heroY * 10 + heroX] = 0;
-        level[heroY * 10 + heroX + pos1] = 4;
+        level[heroY * ly + heroX] = 0;
+        level[heroY * ly + heroX + pos1] = 4;
 
         //vratit krizek
         if(!markPositions.isEmpty()) {
-            if(markPositions.element() == heroY * 10 + heroX) {
+            if(markPositions.element() == heroY * ly + heroX) {
                 level[markPositions.remove()] = 3;
             }
         }
@@ -178,7 +185,7 @@ public class SokoView extends View{
 
         for (int i = 0; i < lx; i++) {
             for (int j = 0; j < ly; j++) {
-                canvas.drawBitmap(bmp[level[i*10 + j]], null,
+                canvas.drawBitmap(bmp[level[i*ly + j]], null,
                         new Rect(j*width, i*height,(j+1)*width, (i+1)*height), null);
             }
         }
