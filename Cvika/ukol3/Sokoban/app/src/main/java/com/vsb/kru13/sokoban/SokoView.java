@@ -17,21 +17,13 @@ import java.util.Queue;
 
 public class SokoView extends View{
 
-    Bitmap[] bmp;
+    private Bitmap[] bmp;
 
-    int lx = 10;
-    int ly = 10;
+    private int lx, ly, width, height, heroX, heroY;
 
-    int width;
-    int height;
+    private Queue<Integer> markPositions;
 
-    int heroX = 6;
-    int heroY = 4;
-
-    Queue<Integer> markPositions = new LinkedList<>();
-
-    private float xT1;
-    private float yT1;
+    private float xT1, yT1;
     static final int MIN_DISTANCE = 150;
 
     private int levelIndex = 0;
@@ -59,6 +51,7 @@ public class SokoView extends View{
         ly = levelWidth;
         heroX = spawnX;
         heroY = spawnY;
+        markPositions = new LinkedList<>();
         adjustSize(getWidth(), getHeight());
         invalidate();
     }
@@ -85,7 +78,9 @@ public class SokoView extends View{
         heroX = l.spawnX;
         heroY = l.spawnY;
         adjustSize(getWidth(), getHeight());
+        markPositions = new LinkedList<>();
         invalidate();
+
         return true;
     }
 

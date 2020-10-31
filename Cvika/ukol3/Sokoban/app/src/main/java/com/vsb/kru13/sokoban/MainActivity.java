@@ -65,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
                 if (maxRowLength < s.length())
                     maxRowLength = s.length();
 
-            Log.d("length ", String.valueOf(maxRowLength));
-
             //zarovnani radku a replace znaku
             for (int i = 0; i < level.length; i++) {
                 StringBuilder sb = new StringBuilder();
