@@ -6,11 +6,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 
 public class SokoView extends View{
@@ -32,18 +34,9 @@ public class SokoView extends View{
     private float yT1;
     static final int MIN_DISTANCE = 150;
 
-    private int[] level = {
-            1,1,1,1,1,1,1,1,1,0,
-            1,0,0,0,0,0,0,0,1,0,
-            1,0,2,3,3,2,1,0,1,0,
-            1,0,1,3,2,3,2,0,1,0,
-            1,0,2,3,3,2,4,0,1,0,
-            1,0,1,3,2,3,2,0,1,0,
-            1,0,2,3,3,2,1,0,1,0,
-            1,0,0,0,0,0,0,0,1,0,
-            1,1,1,1,1,1,1,1,1,0,
-            0,0,0,0,0,0,0,0,0,0
-    };
+    private int levelIndex = 0;
+    private int[] level;
+    private List<Level> levels;
 
     public SokoView(Context context) {
         super(context);
@@ -61,13 +54,48 @@ public class SokoView extends View{
     }
 
     public void setLevel(int[] newLevel, int levelHeight, int levelWidth, int spawnX, int spawnY) {
-        //System.arraycopy(newLevel, 0, level, 0, newLevel.length);
-        level = newLevel;
+        level = newLevel.clone();
         lx = levelHeight;
         ly = levelWidth;
         heroX = spawnX;
         heroY = spawnY;
+        adjustSize(getWidth(), getHeight());
         invalidate();
+    }
+
+    public void setLevels(List<Level> levels) {
+        this.levels = levels;
+    }
+
+    public void setNextLevel() {
+        if(!setNextLevel(++levelIndex))
+            levelIndex--;
+    }
+
+    public boolean setNextLevel(int nextLevelId) {
+        if(nextLevelId >= levels.size() || nextLevelId <= 0) {
+            Toast.makeText(getContext(), "No more levels", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        Level l = levels.get(nextLevelId);
+        level = l.layout.clone();
+        lx = l.height;
+        ly = l.width;
+        heroX = l.spawnX;
+        heroY = l.spawnY;
+        adjustSize(getWidth(), getHeight());
+        invalidate();
+        return true;
+    }
+
+    public void setPreviousLevel() {
+        if(!setNextLevel(--levelIndex))
+            levelIndex++;
+    }
+
+    public void restartLevel() {
+        setNextLevel(levelIndex);
     }
 
     void init(Context context) {
@@ -83,9 +111,22 @@ public class SokoView extends View{
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        //width = w / ly;
+        //height = h / lx;
+        adjustSize(w, h);
+        super.onSizeChanged(w, h, oldw, oldh);
+    }
+
+    private void adjustSize(int w, int h) {
         width = w / ly;
         height = h / lx;
-        super.onSizeChanged(w, h, oldw, oldh);
+        Log.d("size", "orgWidth = " + width);
+        Log.d("size", "orgHeight = " + height);
+
+        while(height > width * 2) {
+            height /= 2;
+            Log.d("size", "newHeight = " + height);
+        }
     }
 
     @Override
@@ -137,7 +178,8 @@ public class SokoView extends View{
             level[heroY * ly + heroX + pos1] == 5 && level[heroY * ly + heroX + pos2] == 5 ||
             level[heroY * ly + heroX + pos1] == 2 && level[heroY * ly + heroX + pos2] == 5 ||
             level[heroY * ly + heroX + pos1] == 5 && level[heroY * ly + heroX + pos2] == 2 ||
-            level[heroY * ly + heroX + pos1] == 2 && level[heroY * ly + heroX + pos2] == 1)
+            level[heroY * ly + heroX + pos1] == 2 && level[heroY * ly + heroX + pos2] == 1 ||
+            level[heroY * ly + heroX + pos1] == 5 && level[heroY * ly + heroX + pos2] == 1)
             return;
 
         //posouvani beden
@@ -178,6 +220,19 @@ public class SokoView extends View{
             heroY++;
 
         invalidate();
+
+        if(isWin()) {
+            Toast.makeText(getContext(), "Win", Toast.LENGTH_LONG).show();
+            setNextLevel();
+        }
+    }
+
+    private boolean isWin() {
+        for(int item : level) {
+            if (item == 3 || item == 2)
+                return false;
+        }
+        return true;
     }
 
     @Override
@@ -189,6 +244,5 @@ public class SokoView extends View{
                         new Rect(j*width, i*height,(j+1)*width, (i+1)*height), null);
             }
         }
-
     }
 }

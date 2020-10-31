@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Restart"
+        android:id="@+id/restart"/>
+    <item android:title="Previous Level"
+        android:id="@+id/previous_level"/>
+    <item android:title="Next Level"
+        android:id="@+id/next_level"/>
+</menu>
