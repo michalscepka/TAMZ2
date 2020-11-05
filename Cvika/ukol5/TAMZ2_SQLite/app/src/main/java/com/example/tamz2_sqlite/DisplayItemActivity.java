@@ -15,6 +15,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     private DBHelper mydb;
     TextView nameTextView;
+    TextView costTextView;
     int idToUpdate;
 
     @Override
@@ -23,13 +24,13 @@ public class DisplayItemActivity extends AppCompatActivity {
         setContentView(R.layout.activity_display_record);
 
         nameTextView = findViewById(R.id.editTextName);
+        costTextView = findViewById(R.id.editTextCost);
         mydb = new DBHelper(this);
         Intent i = getIntent();
         if(i !=null)
         {
             //ziskam ID, ktere se ma editovat/zobrazit/mazat - poslane z hlavni aktivity
-            int value = i.getIntExtra("id", 0);
-            idToUpdate = value;
+            idToUpdate = i.getIntExtra("id", 0);
             if (idToUpdate > 0)
             {
                 //z db vytahnu zaznam pod hledanym ID a ulozim do idToUpdate
@@ -38,6 +39,7 @@ public class DisplayItemActivity extends AppCompatActivity {
 
                 //z DB vytahnu jmeno zaznamu
                 String nameDB = rs.getString(rs.getColumnIndex(DBHelper.ITEM_COLUMN_NAME));
+                String costDB = rs.getString(rs.getColumnIndex(DBHelper.ITEM_COLUMN_COST));
 
                 if (!rs.isClosed())
                 {
@@ -51,6 +53,10 @@ public class DisplayItemActivity extends AppCompatActivity {
                 nameTextView.setFocusable(false);
                 nameTextView.setClickable(false);
 
+                costTextView.setText(costDB);
+                costTextView.setEnabled(false);
+                costTextView.setFocusable(false);
+                costTextView.setClickable(false);
             }
         }
     }
@@ -77,10 +83,18 @@ public class DisplayItemActivity extends AppCompatActivity {
             nameTextView.setFocusableInTouchMode(true);
             nameTextView.setClickable(true);
 
+            costTextView.setEnabled(true);
+            costTextView.setFocusableInTouchMode(true);
+            costTextView.setClickable(true);
         }
         if (id == R.id.Delete_Contact)
         {
             //TODO 3: zavolat z mydb metodu na odstraneni zaznamu
+            if(mydb.deleteItem(idToUpdate))
+                Toast.makeText(this, "deleted", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(this, "not deleted", Toast.LENGTH_SHORT).show();
+
             finish();
             Intent i = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(i);
@@ -91,27 +105,28 @@ public class DisplayItemActivity extends AppCompatActivity {
 
     public void saveButtonAction(View view)
     {
-
         if(idToUpdate > 0){
             //TODO 4: zavolat z mydb metodu na update zaznamu
+            if(mydb.updateItem(idToUpdate, nameTextView.getText().toString(), costTextView.getText().toString()))
+                Toast.makeText(getApplicationContext(), "updated", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(getApplicationContext(), "not updated", Toast.LENGTH_SHORT).show();
+
             finish();
             Intent i = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(i);
         }
         else{
             //vlozeni zaznamu
-            if(mydb.insertItem(nameTextView.getText().toString())){
+            if(mydb.insertItem(nameTextView.getText().toString(), costTextView.getText().toString()))
                 Toast.makeText(getApplicationContext(), "saved", Toast.LENGTH_SHORT).show();
-            }
-
-            else{
+            else
                 Toast.makeText(getApplicationContext(), "not saved", Toast.LENGTH_SHORT).show();
-            }
+
             finish();
             Intent i = new Intent(getApplicationContext(), MainActivity.class);
             startActivity(i);
         }
-
     }
 
     @Override
